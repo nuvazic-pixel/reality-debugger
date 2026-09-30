@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://reality-debugger.local/schemas/analysis.schema.json",
+  "title": "RealityDebuggerOutput",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_type": {"type": "string", "enum": ["text", "url", "transcript"]},
+        "timestamp": {"type": "string", "format": "date-time"}
+      },
+      "required": ["source_type", "timestamp"]
+    },
+    "elements": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/analyzedElement"}
+    }
+  },
+  "required": ["metadata", "elements"],
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "source_type": {"type": "string", "enum": ["primary", "secondary", "unknown"]},
+        "locator": {"type": ["string", "null"]},
+        "excerpt_hash": {"type": ["string", "null"]}
+      },
+      "required": ["source_id", "source_type"]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "relation": {"type": "string", "enum": ["supports", "contradicts", "contextualizes"]},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      },
+      "required": ["relation", "provenance"]
+    },
+    "analyzedElement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claim": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "enum": ["factual_claim", "opinion", "prediction", "emotional_language"]},
+        "evidence_status": {"type": "string", "enum": ["verified", "unverified", "refuted", "not_applicable"]},
+        "persuasion_signals": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "enum": ["urgency", "fear", "authority_appeal", "social_proof", "repetition", "us_vs_them_framing"]}
+        },
+        "evidence": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/evidence"}
+        },
+        "needs_verification": {"type": "boolean"}
+      },
+      "required": ["claim", "type", "evidence_status", "persuasion_signals", "evidence", "needs_verification"]
+    }
+  }
+}
